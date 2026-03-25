@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EMS | Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Admin Dashboard</h1>
+    <button onclick="logoutUser()">Logout</button>
+
+    <section>
+      <h2>All Employees</h2>
+      <button onclick="loadEmployees()">Refresh</button>
+      <table id="employeeTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Type</th><th>Phone</th><th>Login</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Add Employee</h2>
+      <input type="text" id="empName" placeholder="Name">
+      <input type="text" id="empEmail" placeholder="Email">
+      <input type="number" id="empType" placeholder="Type (0-2)">
+      <input type="text" id="empPhone" placeholder="Phone">
+      <input type="text" id="empLogin" placeholder="Username">
+      <input type="text" id="empPassword" placeholder="Password">
+      <button onclick="createEmployee()">Add</button>
+    </section>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const user = getLoggedUser();
+    if (!user || user.type !== 0) {
+      alert("Unauthorized Access");
+      window.location.href = "index.html";
+    }
+
+    function loadEmployees() {
+      $.ajax({
+        url: baseUrl,
+        type: "GET",
+        success: function (data) {
+          let rows = "";
+          data.forEach(emp => {
+            rows += `<tr>
+              <td>${emp.employeeId}</td>
+              <td>${emp.name}</td>
+              <td>${emp.email}</td>
+              <td>${emp.type}</td>
+              <td>${emp.phone}</td>
+              <td>${emp.login}</td>
+              <td><button onclick="deleteEmployee(${emp.employeeId})">Delete</button></td>
+            </tr>`;
+          });
+          $("#employeeTable tbody").html(rows);
+        }
+      });
+    }
+
+    function createEmployee() {
+      const emp = {
+        name: $("#empName").val(),
+        email: $("#empEmail").val(),
+        type: parseInt($("#empType").val()),
+        phone: $("#empPhone").val(),
+        login: $("#empLogin").val(),
+        password: $("#empPassword").val()
+      };
+
+      $.ajax({
+        url: baseUrl,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(emp),
+        success: function() {
+          alert("Employee added");
+          loadEmployees();
+        }
+      });
+    }
+
+    function deleteEmployee(id) {
+      $.ajax({
+        url: `${baseUrl}/${id}`,
+        type: "DELETE",
+        success: function() {
+          alert("Deleted");
+          loadEmployees();
+        }
+      });
+    }
+
+    loadEmployees();
+  </script>
+</body>
+</html>

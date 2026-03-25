@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      max-width: 850px;
+      margin: auto;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #eaeaea;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Employee Management</h1>
+
+    <h3>1️⃣ Get All Employees</h3>
+    <button onclick="getAllEmployees()">Load Employees</button>
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>EmpID</th><th>Name</th><th>Email Address</th><th>Type</th>
+          <th>Phone No.</th><th>UserName</th><th>Password</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>2️⃣ Get Employee By ID</h3>
+    <input type="number" id="empId" placeholder="Enter Employee ID">
+    <button onclick="getEmployeeById()">Search</button>
+    <div id="empDetails"></div>
+
+    <h3>3️⃣ Create New Employee</h3>
+    <input type="text" id="empName" placeholder="Employee Name">
+    <input type="text" id="empEmail" placeholder="Email Address">
+    <input type="text" id="empType" placeholder="Type">
+    <input type="number" id="empPhone" placeholder="Phone No.">
+    <input type="text" id="empLogin" placeholder="UserName">
+    <input type="text" id="empPassword" placeholder="Password"><br>
+    <button onclick="createEmployee()">Add Employee</button>
+  </div>
+
+  <script>
+    const baseUrl = "https://localhost:7170/api/Employee";
+
+    // ✅ 1. Get all employees
+    function getAllEmployees() {
+      $.ajax({
+        url: baseUrl,
+        type: "GET",
+        success: function (data) {
+          let rows = "";
+          data.forEach(emp => {
+            rows += `<tr>
+              <td>${emp.employeeId}</td>
+              <td>${emp.name}</td>
+              <td>${emp.email}</td>
+              <td>${emp.type}</td>
+              <td>${emp.phone}</td>
+              <td>${emp.login}</td>
+              <td>${emp.password}</td>
+              <td>
+                    <button onclick="editEmployee(${emp.employeeId})">Edit</button>
+                    <button onclick="deleteEmployee(${emp.employeeId})">Delete</button>
+              </td>
+            </tr>`;
+          });
+          $("#employeeTable tbody").html(rows);
+        },
+        error: function (err) {
+          alert("Error fetching employees");
+          console.log(err);
+        }
+      });
+    }
+
+    // ✅ 2. Get employee by ID
+    function getEmployeeById() {
+      const id = $("#empId").val();
+      if (!id) {
+        alert("Please enter an Employee ID");
+        return;
+      }
+
+      $.ajax({
+        url: `${baseUrl}/${id}`,
+        type: "GET",
+        success: function (emp) {
+          if (!emp) {
+            $("#empDetails").html("<p>No employee found</p>");
+            return;
+          }
+          $("#empDetails").html(`
+            <p><b>Name:</b> ${emp.name}</p>
+            <p><b>Employee Type:</b> ${emp.type}</p>
+            <p><b>Email Address:</b> ${emp.email}</p>
+          `);
+        },
+        error: function () {
+          alert("Employee not found!");
+          $("#empDetails").html('');
+        }
+      });
+    }
+
+    // ✅ 3. Create new employee
+    function createEmployee() {
+        
+      const emp = {
+        name: $("#empName").val(),
+        email: $("#empEmail").val(),
+        type: parseInt($("#empType").val()),
+        phone: $("#empPhone").val(),
+        login: $("#empLogin").val(),
+        password: $("#empPassword").val()
+      };
+
+      if (!emp.name || !emp.email || !emp.phone || !emp.login || !emp.password) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      $.ajax({
+        url: baseUrl,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(emp),
+        success: function () {
+          alert("Employee added successfully!");
+           $("#empName").val('N/A'),
+           $("#empEmail").val('N/A'),
+           $("#empType").val('N/A'),
+           $("#empPhone").val(parseInt(0)),
+           $("#empLogin").val('N/A'),
+           $("#empPassword").val('N/A')
+          getAllEmployees(); // refresh list
+        },
+        error: function (err) {
+          alert("Error adding employee");
+          console.log(err);
+        }
+      });
+    }
+  </script>
+
+  <!-- Load jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</body>
+</html>

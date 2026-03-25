@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EMS | HR Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <h1>HR Dashboard</h1>
+    <button onclick="logoutUser()">Logout</button>
+
+    <section>
+      <h2>Employee List</h2>
+      <button onclick="loadEmployees()">Refresh</button>
+      <table id="employeeTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Type</th><th>Phone</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const user = getLoggedUser();
+    if (!user || user.type !== 1) {
+      alert("Unauthorized Access");
+      window.location.href = "index.html";
+    }
+
+    function loadEmployees() {
+      $.ajax({
+        url: baseUrl,
+        type: "GET",
+        success: function (data) {
+          let rows = "";
+          data.forEach(emp => {
+            rows += `<tr>
+              <td>${emp.employeeId}</td>
+              <td>${emp.name}</td>
+              <td>${emp.email}</td>
+              <td>${emp.type}</td>
+              <td>${emp.phone}</td>
+            </tr>`;
+          });
+          $("#employeeTable tbody").html(rows);
+        }
+      });
+    }
+
+    loadEmployees();
+  </script>
+</body>
+</html>

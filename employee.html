@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EMS | Employee Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Welcome, Employee</h1>
+    <button onclick="logoutUser()">Logout</button>
+    <div id="profile"></div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const user = getLoggedUser();
+    if (!user || user.type !== 2) {
+      alert("Unauthorized Access");
+      window.location.href = "index.html";
+    }
+
+    function loadProfile() {
+      $("#profile").html(`
+        <h3>Your Details</h3>
+        <p><b>ID:</b> ${user.employeeId}</p>
+        <p><b>Name:</b> ${user.name}</p>
+        <p><b>Email:</b> ${user.email}</p>
+        <p><b>Phone:</b> ${user.phone}</p>
+      `);
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
